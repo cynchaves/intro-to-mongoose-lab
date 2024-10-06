@@ -7,7 +7,7 @@ const prompt = require('prompt-sync')();
 const connect = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
 
-    console.log('\nWelcome to CRM!\n\nSelect from the following options:\n\n1.Create Customer\n2.View All Customers\n3.Update Customer\n4.Delete Customer\n5.Quit Application\n')
+    console.log('\nWelcome to the CRM!\n\nPlease select from the following options:\n\n1.Create Customer\n2.View All Customers\n3.Update Customer\n4.Delete Customer\n5.Quit Application\n')
 
     let selection = prompt('Input selection # and press Enter twice: ');
     
@@ -20,11 +20,9 @@ const connect = async () => {
       await allCustomers();
     }
     else if (Number(selection) === 3) {
-      await allCustomers();
       await updateCustomer();
     }
     else if (Number(selection) === 4) {
-      await allCustomers();
       await deleteCustomer();
     }
     else if (Number(selection) === 5) {
@@ -36,7 +34,7 @@ const connect = async () => {
     }
 
     await mongoose.disconnect();
-    console.log('\nThank you for using CRM!\n');
+    console.log('\nThank you for using the CRM!\nHave a great day!\n');
     process.exit();
 };
 
@@ -44,29 +42,33 @@ connect();
 
 //~~~~~~~~~~~~~~~~~~~~~Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const createCustomer = async () => {
-    let name = prompt("New customer's name: ");
-    let age = prompt("New customer's age: ")
-    await prompt(name);
-    await prompt(age);
-    await Customer.create({ name, age });
-    console.log('New Customer:\nName:',name,'\nAge:',age);
+    let namePrompt = prompt("New customer's name: ");
+    let agePrompt = prompt("New customer's age: ")
+    await prompt(namePrompt);
+    await prompt(agePrompt);
+    await Customer.create({name:`${namePrompt}`, age: `${agePrompt}`});
+    console.log(`\nNew Customer Added Successfully:\nName: ${namePrompt}\nAge: ${agePrompt}`);
 };
 
 const allCustomers = async () => {
-    const customers = await Customer.find({}).select('name age');
-    console.log('\nCustomer List:\n\n', customers);
+    const customers = await Customer.find({}, 'name age -_id');
+    console.log('Customer List:\n', customers);
   };
 
 const updateCustomer = async () => {
+  const customers = await Customer.find({}, 'name age');
+  console.log('Customer List:\n,', customers);
   let id = prompt('Copy & paste customer ID to update: ');
-  let name = prompt("Customer's new name: ");
-  let age = prompt("Customer's new age: ");
-  let updatedCustomer = await Customer.findByIdAndUpdate(id, { name: `${name}`, age: `${age}` }, { new: true });
-  console.log('\nUpdated Customer:\n\n', updatedCustomer);
+  let namePrompt = prompt("Customer's new name: ");
+  let agePrompt = prompt("Customer's new age: ");
+  let updatedCustomer = await Customer.findByIdAndUpdate(id, {name: `${namePrompt}`, age: `${agePrompt}`}, {new: true});
+  console.log(`\nCustomer Updated Successfully:\nName: ${updatedCustomer.name}\nAge: ${updatedCustomer.age}\nID: ${updatedCustomer._id}`);
 };
 
 const deleteCustomer = async () => {
+  const customers = await Customer.find({}, 'name age');
+  console.log('Customer List:\n', customers);
   let id = prompt('Copy & paste customer ID to delete: ');
   let deletedCustomer = await Customer.findByIdAndDelete(id);
-  console.log('\nDeleted Customer:\n\n', deletedCustomer);
+  console.log(`\nCustomer Deleted Successfully:\nName: ${deletedCustomer.name}\nAge: ${deletedCustomer.age}\nID: ${deletedCustomer._id}`);
 };
